@@ -98,9 +98,9 @@ export const postMessage = (body) => (dispatch) => {
     const data = saveMessage(body);
 
     if (!body.conversationId) {
-      dispatch(addConversation(body.recipientId, data.message));
+      dispatch(addConversation(body.recipientId, data.text));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(data));
     }
 
     sendMessage(data, body);
