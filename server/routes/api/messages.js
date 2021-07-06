@@ -13,6 +13,15 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
+      let isUserConversation = Conversation.matchToUser(
+        senderId,
+        conversationId
+      );
+      if (!conversationId) {
+        return res.json({
+          error: "Attempted to access unauthorized conversation.",
+        });
+      }
       const message = await Message.create({ senderId, text, conversationId });
       return res.json({ message, sender });
     }
