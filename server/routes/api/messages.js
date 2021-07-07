@@ -13,6 +13,7 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
+      // Get a boolean value for whether or not the req.user owns this conversation
       const isUserConversation = await Conversation.matchToUser(
         senderId,
         conversationId

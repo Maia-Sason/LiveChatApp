@@ -6,7 +6,7 @@ import {
   addOnlineUser,
 } from "./store/conversations";
 
-import { fetchConversations } from "./store/utils/thunkCreators";
+// import { fetchConversations } from "./store/utils/thunkCreators";
 
 const socket = io(window.location.origin);
 
