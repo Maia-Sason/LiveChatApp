@@ -11,7 +11,7 @@ router.post("/", async (req, res, next) => {
     const senderId = req.user.id;
     const { recipientId, text, conversationId, sender } = req.body;
 
-    if (sender !== undefined) {
+    if (sender) {
       if (senderId !== sender.id) {
         return res.json({
           error: "Attempted to access unauthorized conversation.",
