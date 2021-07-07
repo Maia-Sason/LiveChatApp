@@ -7,8 +7,10 @@ export const addMessageToStore = (state, payload) => {
       otherUser: sender,
       messages: [message],
     };
+
     newConvo.latestMessageText = message.text;
-    return [newConvo, ...state];
+    // Necessary for newConvo to populate online, but dangerous bc it sends to everyone
+    return [...state];
   }
 
   return state.map((convo) => {
@@ -18,6 +20,23 @@ export const addMessageToStore = (state, payload) => {
       convoCopy.latestMessageText = message.text;
 
       return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const addNewConvoToStore = (state, recipientId, message) => {
+  const newConvo = [];
+  return state.map((convo) => {
+    if (convo.otherUser.id === recipientId) {
+      const newConvo = { ...convo };
+
+      newConvo.id = message.conversationId;
+      newConvo.messages.unshift(message);
+      newConvo.latestMessageText = message.text;
+
+      return newConvo;
     } else {
       return convo;
     }
@@ -66,20 +85,4 @@ export const addSearchedUsersToStore = (state, users) => {
   });
 
   return newState;
-};
-
-export const addNewConvoToStore = (state, recipientId, message) => {
-  return state.map((convo) => {
-    if (convo.otherUser.id === recipientId) {
-      const newConvo = { ...convo };
-
-      newConvo.id = message.conversationId;
-      newConvo.messages.push(message);
-      newConvo.latestMessageText = message.text;
-
-      return newConvo;
-    } else {
-      return convo;
-    }
-  });
 };
