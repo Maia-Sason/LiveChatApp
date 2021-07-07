@@ -1,6 +1,7 @@
 import axios from "axios";
 import socket from "../../socket";
 import {
+  updateReadConversation,
   gotConversations,
   addConversation,
   setNewMessage,
@@ -73,6 +74,15 @@ export const fetchConversations = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/api/conversations");
     dispatch(gotConversations(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const readConversation = (body) => async (dispatch) => {
+  try {
+    const { data } = await axios.put("/api/conversations/read", body);
+    dispatch(updateReadConversation(data));
   } catch (error) {
     console.error(error);
   }
