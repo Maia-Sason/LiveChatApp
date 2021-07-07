@@ -9,7 +9,6 @@ const onlineUsers = require("../../onlineUsers");
 router.get("/", async (req, res, next) => {
   try {
     if (!req.user) {
-      console.log("YOU ARE NOT AUTH");
       return res.sendStatus(401);
     }
     const userId = req.user.id;

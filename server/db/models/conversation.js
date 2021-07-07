@@ -10,7 +10,7 @@ Conversation.matchToUser = async function (user1Id, conversationId) {
       id: conversationId,
     },
   });
-  console.log(conversation);
+
   if (
     !conversation ||
     (conversation.user1Id !== user1Id && conversation.user2Id !== user1Id) ||

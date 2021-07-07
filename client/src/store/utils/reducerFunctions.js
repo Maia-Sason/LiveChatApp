@@ -10,7 +10,7 @@ export const addMessageToStore = (state, payload) => {
 
     newConvo.latestMessageText = message.text;
     // Necessary for newConvo to populate online, but dangerous bc it sends to everyone
-    return [...state];
+    return [...state, newConvo];
   }
 
   return state.map((convo) => {
