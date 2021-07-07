@@ -11,6 +11,14 @@ router.post("/", async (req, res, next) => {
     const senderId = req.user.id;
     const { recipientId, text, conversationId, sender } = req.body;
 
+    if (sender !== null) {
+      if (senderId !== sender.id) {
+        return res.json({
+          error: "Attempted to access unauthorized conversation.",
+        });
+      }
+    }
+
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
       // Get a boolean value for whether or not the req.user owns this conversation
