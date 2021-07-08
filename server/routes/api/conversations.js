@@ -75,7 +75,10 @@ router.get("/", async (req, res, next) => {
 
       convoJSON.count = 0;
       for (let i = 0; i < convoJSON.messages.length; i++) {
-        if (req.user.id !== convoJSON.messages[i].senderId) {
+        if (
+          req.user.id !== convoJSON.messages[i].senderId &&
+          !convoJSON.messages[i].read
+        ) {
           convoJSON.count++;
         }
       }
@@ -101,8 +104,8 @@ router.put("/read", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-
-    const { recipientId, text, id, sender } = req.body;
+    console.log(req.body);
+    const { id } = req.body;
     const senderId = req.user.id;
     const conversationId = id;
 
@@ -149,11 +152,13 @@ router.put("/read", async (req, res, next) => {
     for (let i = 0; i < conversation.messages.length; i++) {
       if (req.user.id !== conversation.messages[i].senderId) {
         try {
+          console.log(conversation.messages[i]);
           const result = await conversation.messages[i].update({ read: true });
         } catch (err) {
           next(error);
         }
-        // console.log(conversation.messages[i]);
+
+        console.log(conversation.messages[i]);
       }
     }
 
@@ -183,7 +188,11 @@ router.put("/read", async (req, res, next) => {
 
     // Needs changing
     convoJSON.latestMessageText = convoJSON.messages[0].text;
-    convoJSON.latestMessageRead = convoJSON.messages[0].read;
+    if (convoJSON.messages[0].senderId === senderId) {
+      convoJSON.latestMessageRead = true;
+    } else {
+      convoJSON.latestMessageRead = convoJSON.messages[0].read;
+    }
 
     res.json(convoJSON);
   } catch (error) {

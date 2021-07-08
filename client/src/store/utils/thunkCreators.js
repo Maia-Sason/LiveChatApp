@@ -112,6 +112,7 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
+    body.count = 0;
 
     await sendMessage(data, body);
   } catch (error) {

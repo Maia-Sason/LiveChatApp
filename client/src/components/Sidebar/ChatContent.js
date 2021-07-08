@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@material-ui/core";
+import { Notification } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -60,6 +61,7 @@ const ChatContent = (props) => {
           </Typography>
         )}
       </Box>
+      {/* <Notification /> */}
     </Box>
   );
 };
