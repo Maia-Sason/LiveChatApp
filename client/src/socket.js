@@ -5,6 +5,7 @@ import {
   removeOfflineUser,
   addOnlineUser,
   updateReadConversation,
+  updateUserTypingStatus,
 } from "./store/conversations";
 
 const socket = io(window.location.origin);
@@ -42,10 +43,12 @@ socket.on("connect", () => {
     }
   });
 
-  socket.on("user-typing", (bool, id) => {
-    if (bool) {
+  socket.on("user-typing", (data) => {
+    const storeCopy = store.getState();
+    if (storeCopy.conversationList.includes(data.id)) {
       console.log("user typing...");
-      // dispatch something here.
+
+      store.dispatch(updateUserTypingStatus(data));
     }
   });
 

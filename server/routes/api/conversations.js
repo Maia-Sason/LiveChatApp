@@ -103,8 +103,6 @@ router.get("/", async (req, res, next) => {
 
     const dataJSON = Object.assign({}, { conversations }, { convoId });
 
-    console.log(dataJSON);
-
     res.json(dataJSON);
   } catch (error) {
     next(error);

@@ -1,6 +1,11 @@
 import React from "react";
 import { Box, makeStyles } from "@material-ui/core";
-import { SenderBubble, OtherUserBubble, MiniAvatar } from "../ActiveChat";
+import {
+  SenderBubble,
+  OtherUserBubble,
+  MiniAvatar,
+  OtherUserBubbleLive,
+} from "../ActiveChat";
 import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Messages = (props) => {
-  const { messages, otherUser, userId } = props;
+  const { messages, otherUser, userId, live } = props;
 
   const classes = useStyles();
 
@@ -48,6 +53,7 @@ const Messages = (props) => {
           />
         );
       })}
+      {live && <OtherUserBubbleLive text={"..."} otherUser={otherUser} />}
     </Box>
   );
 };

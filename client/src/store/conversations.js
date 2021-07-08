@@ -5,6 +5,7 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   updateConversationStatus,
+  setTypingStatusStore,
 } from "./utils/reducerFunctions";
 
 import store from "../store";
@@ -19,8 +20,16 @@ const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
 const SET_READ_CONVERSATION = "SET_READ_CONVERSATION";
+const SET_TYPING_STATUS = "SET_TYPING_STATUS";
 
 // ACTION CREATORS
+
+export const updateUserTypingStatus = (data) => {
+  return {
+    type: SET_TYPING_STATUS,
+    payload: { bool: data.bool, id: data.id },
+  };
+};
 
 export const updateReadConversation = (conversation) => {
   return {
@@ -88,6 +97,12 @@ const reducer = (state = [], action) => {
       return action.conversations;
     case SET_READ_CONVERSATION:
       return updateConversationStatus(state, action.payload.conversation);
+    case SET_TYPING_STATUS:
+      return setTypingStatusStore(
+        state,
+        action.payload.bool,
+        action.payload.id
+      );
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {

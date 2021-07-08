@@ -75,10 +75,10 @@ export const logout = (id) => async (dispatch) => {
 // CONVERSATIONS THUNK CREATORS
 
 const typingMessage = (bool, id) => {
-  socket.emit("user-typing", (bool, id));
+  socket.emit("user-typing", { bool, id });
 };
 
-export const userTypingMessage = (bool, id) => async (dispatch) => {
+export const userTypingMessage = (bool, id) => {
   typingMessage(bool, id);
 };
 

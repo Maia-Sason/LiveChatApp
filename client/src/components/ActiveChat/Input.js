@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import { FormControl, FilledInput } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
-import { postMessage, readConversation } from "../../store/utils/thunkCreators";
+import {
+  postMessage,
+  readConversation,
+  userTypingMessage,
+} from "../../store/utils/thunkCreators";
 
 const styles = {
   root: {
@@ -25,10 +29,19 @@ class Input extends Component {
     };
   }
 
-  handleChange = (event) => {
+  handleChange = async (event) => {
     this.setState({
       text: event.target.value,
     });
+    if (event.target.value.length > 0) {
+      await this.props.userTypingMessage(true, this.props.conversationId);
+    } else {
+      await this.props.userTypingMessage(false, this.props.conversationId);
+    }
+  };
+
+  handleBlur = async (event) => {
+    await this.props.userTypingMessage(false, this.props.conversationId);
   };
 
   handleSubmit = async (event) => {
@@ -51,7 +64,11 @@ class Input extends Component {
   render() {
     const { classes } = this.props;
     return (
-      <form className={classes.root} onSubmit={this.handleSubmit}>
+      <form
+        className={classes.root}
+        onSubmit={this.handleSubmit}
+        onBlur={this.handleBlur}
+      >
         <FormControl fullWidth hiddenLabel>
           <FilledInput
             classes={{ root: classes.input }}
@@ -81,6 +98,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     readConversation: (id) => {
       dispatch(readConversation(id));
+    },
+    userTypingMessage: (bool, id) => {
+      userTypingMessage(bool, id);
     },
   };
 };

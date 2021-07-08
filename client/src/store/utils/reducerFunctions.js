@@ -71,6 +71,7 @@ export const updateConversationStatus = (state, payload) => {
   return state.map((convo) => {
     if (convo.id === payload.id && !payload.live) {
       const newConvo = { ...payload };
+      newConvo.live = convo.live;
 
       return newConvo;
     } else if (convo.id === payload.id && payload.live) {
@@ -80,6 +81,18 @@ export const updateConversationStatus = (state, payload) => {
       newConvo.messages = payload.messages;
 
       return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const setTypingStatusStore = (state, bool, id) => {
+  return state.map((convo) => {
+    if (convo.id === id) {
+      const convoCopy = { ...convo };
+      convoCopy.live = bool;
+      return convoCopy;
     } else {
       return convo;
     }

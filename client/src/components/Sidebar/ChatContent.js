@@ -43,7 +43,12 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessageText, otherUser, latestMessageRead } = conversation;
+  const {
+    latestMessageText,
+    otherUser,
+    latestMessageRead,
+    live,
+  } = conversation;
 
   return (
     <Box className={classes.root}>
@@ -51,14 +56,22 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        {latestMessageRead ? (
+        {live ? (
           <Typography className={classes.previewText}>
-            {latestMessageText}
+            <em>Typing...</em>
           </Typography>
         ) : (
-          <Typography className={classes.previewTextUnread}>
-            {latestMessageText}
-          </Typography>
+          <>
+            {latestMessageRead ? (
+              <Typography className={classes.previewText}>
+                {latestMessageText}
+              </Typography>
+            ) : (
+              <Typography className={classes.previewTextUnread}>
+                {latestMessageText}
+              </Typography>
+            )}
+          </>
         )}
       </Box>
     </Box>
