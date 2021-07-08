@@ -13,9 +13,7 @@ router.post("/", async (req, res, next) => {
 
     if (sender) {
       if (senderId !== sender.id) {
-        return res.json({
-          error: "Attempted to access unauthorized conversation.",
-        });
+        return res.sendStatus(403);
       }
     }
 
@@ -27,9 +25,7 @@ router.post("/", async (req, res, next) => {
         conversationId
       );
       if (!isUserConversation) {
-        return res.json({
-          error: "Attempted to access unauthorized conversation.",
-        });
+        return res.sendStatus(403);
       }
       const message = await Message.create({ senderId, text, conversationId });
       return res.json({ message, sender });
