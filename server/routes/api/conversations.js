@@ -50,7 +50,7 @@ router.get("/", async (req, res, next) => {
 
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
-      console.log(convo);
+
       const convoJSON = convo.toJSON();
 
       // set a property "otherUser" so that frontend will have easier access
@@ -130,9 +130,9 @@ router.put("/read", async (req, res, next) => {
     const conversation = await Conversation.findOne({
       where: { id: conversationId },
       attributes: ["id"],
-      order: [[Message, "createdAt", "DESC"]],
+      order: [[Message, "createdAt", "ASC"]],
       include: [
-        { model: Message, order: ["createdAt", "DESC"] },
+        { model: Message, order: ["createdAt", "ASC"] },
         {
           model: User,
           as: "user1",
@@ -189,11 +189,16 @@ router.put("/read", async (req, res, next) => {
     convoJSON.count = 0;
 
     // Needs changing
-    convoJSON.latestMessageText = convoJSON.messages[0].text;
-    if (convoJSON.messages[0].senderId === senderId) {
+    convoJSON.latestMessageText =
+      convoJSON.messages[convoJSON.messages.length - 1].text;
+
+    if (
+      convoJSON.messages[convoJSON.messages.length - 1].senderId === senderId
+    ) {
       convoJSON.latestMessageRead = true;
     } else {
-      convoJSON.latestMessageRead = convoJSON.messages[0].read;
+      convoJSON.latestMessageRead =
+        convoJSON.messages[convoJSON.messages.length - 1].read;
     }
 
     res.json(convoJSON);
