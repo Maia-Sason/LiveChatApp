@@ -1,5 +1,6 @@
 import axios from "axios";
 import socket from "../../socket";
+import { setConversationList } from "../conversationList";
 import {
   updateReadConversation,
   gotConversations,
@@ -7,6 +8,7 @@ import {
   setNewMessage,
   setSearchedUsers,
 } from "../conversations";
+import { addConvoId } from "../conversationList";
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
@@ -37,6 +39,7 @@ export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
+    delete data.token;
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -49,6 +52,7 @@ export const login = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
+    delete data.token;
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -70,10 +74,23 @@ export const logout = (id) => async (dispatch) => {
 
 // CONVERSATIONS THUNK CREATORS
 
+const typingMessage = (bool, id) => {
+  socket.emit("user-typing", (bool, id));
+};
+
+export const userTypingMessage = (bool, id) => async (dispatch) => {
+  typingMessage(bool, id);
+};
+
+const readMessage = async (data) => {
+  socket.emit("read-message", data);
+};
+
 export const fetchConversations = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/api/conversations");
-    dispatch(gotConversations(data));
+    dispatch(gotConversations(data.conversations));
+    dispatch(setConversationList(data.convoId));
   } catch (error) {
     console.error(error);
   }
@@ -85,12 +102,13 @@ export const readConversation = (body) => async (dispatch) => {
     const { data } = await axios.put("/api/conversations/read", body);
 
     if (data.id) {
-      dispatch(updateReadConversation(data));
+      await dispatch(updateReadConversation(data));
     }
 
     // Would be good to send a socket action here probably if we wanted to add
     // live reading.
     //  ie: await readMessage(data, body)
+    readMessage(data);
   } catch (error) {
     console.error(error);
   }
@@ -106,6 +124,7 @@ const sendMessage = async (data, body) => {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
+    conversationId: body.conversationId,
   });
 };
 
@@ -117,12 +136,13 @@ export const postMessage = (body) => async (dispatch) => {
     const data = await saveMessage(body);
 
     if (!body.conversationId) {
+      dispatch(addConvoId(data.message.conversationId));
       dispatch(addConversation(body.recipientId, data.message));
     } else {
       dispatch(setNewMessage(data.message));
     }
-    body.count = 0;
 
+    body.count = 0;
     await sendMessage(data, body);
   } catch (error) {
     console.error(error);

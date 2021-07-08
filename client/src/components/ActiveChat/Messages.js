@@ -22,14 +22,14 @@ const Messages = (props) => {
 
   return (
     <Box>
-      {messages.map((message, key) => {
+      {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
 
         return message.senderId === userId ? (
-          <Box className={classes.boxWrapper}>
+          <Box className={classes.boxWrapper} key={message.id}>
             <Box>
               <SenderBubble key={message.id} text={message.text} time={time} />
-              {message.read === true && key === messages.length - 1 && (
+              {message.read === true && index === messages.length - 1 && (
                 <Box className={classes.boxContainer}>
                   <MiniAvatar
                     altKey={otherUser.username}

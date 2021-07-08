@@ -48,8 +48,12 @@ router.get("/", async (req, res, next) => {
       ],
     });
 
+    const convoId = [];
+
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
+
+      convoId.push(convo.id);
 
       const convoJSON = convo.toJSON();
 
@@ -97,7 +101,11 @@ router.get("/", async (req, res, next) => {
       conversations[i] = convoJSON;
     }
 
-    res.json(conversations);
+    const dataJSON = Object.assign({}, { conversations }, { convoId });
+
+    console.log(dataJSON);
+
+    res.json(dataJSON);
   } catch (error) {
     next(error);
   }
@@ -188,7 +196,6 @@ router.put("/read", async (req, res, next) => {
 
     convoJSON.count = 0;
 
-    // Needs changing
     convoJSON.latestMessageText =
       convoJSON.messages[convoJSON.messages.length - 1].text;
 

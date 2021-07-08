@@ -69,8 +69,15 @@ export const addNewConvoToStore = (state, storeCopy, recipientId, message) => {
 export const updateConversationStatus = (state, payload) => {
   // On trigger, update the conversation so that messages are read.
   return state.map((convo) => {
-    if (convo.id === payload.id) {
+    if (convo.id === payload.id && !payload.live) {
       const newConvo = { ...payload };
+
+      return newConvo;
+    } else if (convo.id === payload.id && payload.live) {
+      // If conversation was recieved from websockets only update messages from payload.
+      const newConvo = { ...convo };
+
+      newConvo.messages = payload.messages;
 
       return newConvo;
     } else {
