@@ -79,10 +79,18 @@ export const fetchConversations = () => async (dispatch) => {
   }
 };
 
+// Send conversationId and update entire conversation to read for certain user.
 export const readConversation = (body) => async (dispatch) => {
   try {
     const { data } = await axios.put("/api/conversations/read", body);
-    dispatch(updateReadConversation(data));
+
+    if (data.id) {
+      dispatch(updateReadConversation(data));
+    }
+
+    // Would be good to send a socket action here probably if we wanted to add
+    // live reading.
+    //  ie: await readMessage(data, body)
   } catch (error) {
     console.error(error);
   }
@@ -103,6 +111,7 @@ const sendMessage = async (data, body) => {
 
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
+// On send new message, set body.count to 0 for user who sent a message.
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);

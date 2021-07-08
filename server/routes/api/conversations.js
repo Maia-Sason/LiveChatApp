@@ -70,8 +70,6 @@ router.get("/", async (req, res, next) => {
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;
-      console.log(convoJSON.messages[0].senderId);
-      console.log(req.user.id);
 
       convoJSON.count = 0;
       for (let i = 0; i < convoJSON.messages.length; i++) {
@@ -86,7 +84,6 @@ router.get("/", async (req, res, next) => {
       if (req.user.id === convoJSON.messages[0].senderId) {
         convoJSON.latestMessageRead = true;
       } else {
-        console.log(convoJSON.messages[0].read);
         convoJSON.latestMessageRead = convoJSON.messages[0].read;
       }
       conversations[i] = convoJSON;
@@ -104,10 +101,14 @@ router.put("/read", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-    console.log(req.body);
+
     const { id } = req.body;
     const senderId = req.user.id;
     const conversationId = id;
+
+    if (!conversationId) {
+      return res.json({ id: null });
+    }
 
     const isUserConversation = await Conversation.matchToUser(
       senderId,
@@ -152,17 +153,12 @@ router.put("/read", async (req, res, next) => {
     for (let i = 0; i < conversation.messages.length; i++) {
       if (req.user.id !== conversation.messages[i].senderId) {
         try {
-          console.log(conversation.messages[i]);
           const result = await conversation.messages[i].update({ read: true });
         } catch (err) {
           next(error);
         }
-
-        console.log(conversation.messages[i]);
       }
     }
-
-    // conversation.save();
 
     const convoJSON = conversation.toJSON();
 
@@ -183,8 +179,6 @@ router.put("/read", async (req, res, next) => {
     }
 
     convoJSON.count = 0;
-    //console.log(conversation);
-    // console.log(convoJSON);
 
     // Needs changing
     convoJSON.latestMessageText = convoJSON.messages[0].text;

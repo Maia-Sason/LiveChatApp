@@ -46,6 +46,8 @@ export const addNewConvoToStore = (state, storeCopy, recipientId, message) => {
 
       newConvo.id = message.conversationId;
       newConvo.messages.push(message);
+
+      // Set convo count to 0 or 1 for a new conversation
       newConvo.count = 0;
       if (message.senderId === storeCopy.user.id) {
         newConvo.latestMessageRead = true;
@@ -63,6 +65,7 @@ export const addNewConvoToStore = (state, storeCopy, recipientId, message) => {
 };
 
 export const updateConversationStatus = (state, payload) => {
+  // On trigger, update the conversation so that messages are read.
   return state.map((convo) => {
     if (convo.id === payload.id) {
       const newConvo = { ...payload };

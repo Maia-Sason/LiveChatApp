@@ -61,7 +61,6 @@ const ChatContent = (props) => {
           </Typography>
         )}
       </Box>
-      {/* <Notification /> */}
     </Box>
   );
 };
