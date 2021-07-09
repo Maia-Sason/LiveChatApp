@@ -72,14 +72,11 @@ export const updateConversationStatus = (state, payload) => {
     if (convo.id === payload.id && !payload.live) {
       const newConvo = { ...payload };
       newConvo.live = convo.live;
-
       return newConvo;
     } else if (convo.id === payload.id && payload.live) {
       // If conversation was recieved from websockets only update messages from payload.
       const newConvo = { ...convo };
-
-      newConvo.messages = payload.messages;
-
+      newConvo.messages = payload.messages; //might be where error lies
       return newConvo;
     } else {
       return convo;

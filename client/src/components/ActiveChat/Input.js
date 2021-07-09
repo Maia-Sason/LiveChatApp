@@ -58,8 +58,10 @@ class Input extends Component {
     this.setState({
       text: "",
     });
+
+    // ISSUE WITH THIS LINE OF CODE!!!
+    // await this.props.readConversation({ id: reqBody.conversationId });
     await this.props.userTypingMessage(false, this.props.conversationId);
-    await this.props.readConversation({ id: reqBody.conversationId });
   };
 
   render() {
@@ -97,8 +99,8 @@ const mapDispatchToProps = (dispatch) => {
     postMessage: (message) => {
       dispatch(postMessage(message));
     },
-    readConversation: (id) => {
-      dispatch(readConversation(id));
+    readConversation: async (id) => {
+      await dispatch(readConversation(id));
     },
     userTypingMessage: (bool, id) => {
       userTypingMessage(bool, id);

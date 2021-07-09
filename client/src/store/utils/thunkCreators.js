@@ -97,12 +97,20 @@ export const fetchConversations = () => async (dispatch) => {
 };
 
 // Send conversationId and update entire conversation to read for certain user.
+export const asyncRead = async (body) => async (dispatch) => {
+  try {
+    await dispatch(readConversation(body));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const readConversation = (body) => async (dispatch) => {
   try {
     const { data } = await axios.put("/api/conversations/read", body);
 
     if (data.id) {
-      await dispatch(updateReadConversation(data));
+      dispatch(updateReadConversation(data));
     }
 
     // Would be good to send a socket action here probably if we wanted to add
@@ -119,7 +127,7 @@ const saveMessage = async (body) => {
   return data;
 };
 
-const sendMessage = async (data, body) => {
+const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
@@ -134,6 +142,7 @@ const sendMessage = async (data, body) => {
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
+    await asyncRead({ id: body.conversationId });
 
     if (!body.conversationId) {
       dispatch(addConvoId(data.message.conversationId));
@@ -143,7 +152,7 @@ export const postMessage = (body) => async (dispatch) => {
     }
 
     body.count = 0;
-    await sendMessage(data, body);
+    sendMessage(data, body);
   } catch (error) {
     console.error(error);
   }

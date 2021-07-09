@@ -24,6 +24,8 @@ socket.on("connect", () => {
 
   socket.on("new-message", (data) => {
     const storeCopy = store.getState();
+    console.log("Recieved message");
+
     // Try adding another data structure to get convo ids. an array we can find in.
     if (
       data.recipientId === storeCopy.user.id ||
@@ -35,12 +37,11 @@ socket.on("connect", () => {
 
   socket.on("read-message", (data) => {
     const storeCopy = store.getState();
-
     data.live = true;
     if (data.id !== null) {
-      if (data.otherUser.id === storeCopy.user.id) {
-        store.dispatch(updateReadConversation(data));
-      }
+      //   if (data.otherUser.id === storeCopy.user.id) {
+      //     store.dispatch(updateReadConversation(data));
+      //   }
     }
   });
 

@@ -111,6 +111,7 @@ router.get("/", async (req, res, next) => {
 
 // Set all posts who are not owned by user to unread. Set count to 0.
 router.put("/read", async (req, res, next) => {
+  console.log(req.body);
   try {
     if (!req.user) {
       return res.sendStatus(401);
@@ -163,6 +164,13 @@ router.put("/read", async (req, res, next) => {
         },
       ],
     });
+
+    const messages = await Message.findAll({
+      where: { conversationId: conversationId },
+    });
+    console.log("\n\nMESSAGES \n");
+    console.log(messages[messages.length - 1].text);
+    console.log(conversation.messages[conversation.messages.length - 1].text);
 
     for (let i = 0; i < conversation.messages.length; i++) {
       if (req.user.id !== conversation.messages[i].senderId) {
