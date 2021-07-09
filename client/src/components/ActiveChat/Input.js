@@ -58,6 +58,7 @@ class Input extends Component {
     this.setState({
       text: "",
     });
+    await this.props.userTypingMessage(false, this.props.conversationId);
     await this.props.readConversation({ id: reqBody.conversationId });
   };
 

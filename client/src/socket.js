@@ -37,17 +37,16 @@ socket.on("connect", () => {
     const storeCopy = store.getState();
 
     data.live = true;
-    if (data.otherUser.id === storeCopy.user.id) {
-      console.log("message read.");
-      store.dispatch(updateReadConversation(data));
+    if (data.id !== null) {
+      if (data.otherUser.id === storeCopy.user.id) {
+        store.dispatch(updateReadConversation(data));
+      }
     }
   });
 
   socket.on("user-typing", (data) => {
     const storeCopy = store.getState();
     if (storeCopy.conversationList.includes(data.id)) {
-      console.log("user typing...");
-
       store.dispatch(updateUserTypingStatus(data));
     }
   });
