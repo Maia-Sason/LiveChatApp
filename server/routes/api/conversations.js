@@ -55,8 +55,11 @@ router.get("/", async (req, res, next) => {
 
       try {
         const count = await Message.count({
-          where: { conversationId: convo.id, read: false },
-          exclude: { senderId: req.user.id },
+          where: {
+            conversationId: convo.id,
+            read: false,
+            senderId: { [Op.not]: userId },
+          },
         });
 
         convoJSON.count = count;
@@ -84,16 +87,6 @@ router.get("/", async (req, res, next) => {
 
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
-
-      // convoJSON.count = 0;
-      // for (let i = 0; i < convoJSON.messages.length; i++) {
-      //   if (
-      //     req.user.id !== convoJSON.messages[i].senderId &&
-      //     !convoJSON.messages[i].read
-      //   ) {
-      //     convoJSON.count++;
-      //   }
-      // }
 
       if (
         req.user.id ===

@@ -24,13 +24,8 @@ export const addMessageToStore = (state, payload) => {
         convoCopy.latestMessageRead = true;
       } else {
         convoCopy.latestMessageRead = message.read;
+        convoCopy.count = convoCopy.count + 1;
       }
-      convoCopy.count = 0;
-      convoCopy.messages.map((message) => {
-        if (!message.read && message.senderId !== payload.storeCopy.user.id) {
-          convoCopy.count = convoCopy.count + 1;
-        }
-      });
 
       convoCopy.latestMessageText = message.text;
 
