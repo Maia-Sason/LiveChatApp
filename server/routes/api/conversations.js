@@ -53,6 +53,17 @@ router.get("/", async (req, res, next) => {
 
       const convoJSON = convo.toJSON();
 
+      try {
+        const count = await Message.count({
+          where: { conversationId: convo.id, read: false },
+          exclude: { senderId: req.user.id },
+        });
+
+        convoJSON.count = count;
+      } catch (error) {
+        next(error);
+      }
+
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
         convoJSON.otherUser = convoJSON.user1;
@@ -74,15 +85,15 @@ router.get("/", async (req, res, next) => {
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
 
-      convoJSON.count = 0;
-      for (let i = 0; i < convoJSON.messages.length; i++) {
-        if (
-          req.user.id !== convoJSON.messages[i].senderId &&
-          !convoJSON.messages[i].read
-        ) {
-          convoJSON.count++;
-        }
-      }
+      // convoJSON.count = 0;
+      // for (let i = 0; i < convoJSON.messages.length; i++) {
+      //   if (
+      //     req.user.id !== convoJSON.messages[i].senderId &&
+      //     !convoJSON.messages[i].read
+      //   ) {
+      //     convoJSON.count++;
+      //   }
+      // }
 
       if (
         req.user.id ===
@@ -188,7 +199,6 @@ router.put("/read", async (req, res, next) => {
 
     convoJSON.count = 0;
 
-    // Needs changing
     convoJSON.latestMessageText =
       convoJSON.messages[convoJSON.messages.length - 1].text;
 
