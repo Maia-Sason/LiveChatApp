@@ -26,6 +26,7 @@ router.get("/:username", async (req, res, next) => {
     for (let i = 0; i < users.length; i++) {
       const userJSON = users[i].toJSON();
       if (onlineUsers[userJSON.id]) {
+        console.log(userJSON);
         userJSON.online = true;
       }
       users[i] = userJSON;
@@ -35,5 +36,7 @@ router.get("/:username", async (req, res, next) => {
     next(error);
   }
 });
+
+router.get("/user-online", async (req, res, next) => {});
 
 module.exports = router;

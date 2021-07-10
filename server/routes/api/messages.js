@@ -28,8 +28,7 @@ router.post("/", async (req, res, next) => {
         return res.sendStatus(403);
       }
       const message = await Message.create({ senderId, text, conversationId });
-      console.log("FROM MESSAGE API: ");
-      console.log(message.text);
+
       return res.json({ message, sender });
     }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
@@ -54,10 +53,6 @@ router.post("/", async (req, res, next) => {
       text,
       conversationId: conversation.id,
     });
-
-    // TEST
-    console.log("FROM MESSAGE API: ");
-    console.log(message.text);
 
     res.json({ message, sender });
   } catch (error) {
