@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Typography, Grid } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import Image from "../../resources/images/bg-img.png";
 import { ReactComponent as SVG } from "../../resources/images/bubble.svg";
 import "./hero.css";
@@ -22,10 +22,11 @@ const useStyles = makeStyles((theme) => ({
       "linear-gradient(to top, #3A8DFF 0%,rgba(134, 185, 255, .85) 100%)",
   },
   text: {
+    textAlign: "center",
+    margin: "10px",
     color: "white",
     display: "flex",
     flexDirection: "column",
-    textAlign: "center",
     fontWeight: 600,
     whiteSpace: "no-wrap",
   },

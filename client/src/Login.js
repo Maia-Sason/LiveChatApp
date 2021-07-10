@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textTop: {
     paddingTop: "9px",
+    color: "grey",
   },
   button: {
     color: "#3A8DFF",

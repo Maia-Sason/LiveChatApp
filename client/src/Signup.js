@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textTop: {
     paddingTop: "9px",
+    color: "grey",
   },
   button: {
     color: "#3A8DFF",
@@ -90,7 +91,9 @@ const Login = (props) => {
       <Grid item container xs={12} justifyContent="flex-end">
         <Grid item xs={12} sm={7}>
           <Box className={classes.registerContainer}>
-            <Typography className={classes.textTop}>Need to log in?</Typography>
+            <Typography className={classes.textTop}>
+              Already have an account?
+            </Typography>
             <Box className={classes.spacing}>
               <Button
                 className={classes.button}
