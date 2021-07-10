@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 
 import { login } from "./store/utils/thunkCreators";
+import Layout from "./Layout";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,86 +73,96 @@ const Login = (props) => {
   }
 
   return (
-    <Grid
-      className={classes.root}
-      container
-      direction="row"
-      JustifyContent="space-around"
-    >
-      <Grid item container xs={12} justifyContent="flex-end">
-        <Grid item xs={12} sm={7}>
-          <Box className={classes.registerContainer}>
-            <Typography className={classes.textTop}>
-              Don't have an account?
-            </Typography>
-            <Box className={classes.spacing}>
-              <Button
-                elevation={10}
-                size={"large"}
-                className={classes.button}
-                variant="contained"
-                onClick={() => history.push("/register")}
-              >
-                Register
-              </Button>
+    <Layout>
+      <Grid
+        className={classes.root}
+        container
+        direction="row"
+        JustifyContent="space-around"
+      >
+        <Grid item container xs={12} justifyContent="flex-end">
+          <Grid item xs={12} sm={7}>
+            <Box className={classes.registerContainer}>
+              <Typography className={classes.textTop}>
+                Don't have an account?
+              </Typography>
+              <Box className={classes.spacing}>
+                <Button
+                  elevation={10}
+                  size={"large"}
+                  className={classes.button}
+                  variant="contained"
+                  onClick={() => history.push("/register")}
+                >
+                  Register
+                </Button>
+              </Box>
             </Box>
-          </Box>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Grid container item justifyContent="center" xs={12}>
-        <Grid item>
-          <Box className={classes.formWidth}>
-            <form onSubmit={handleLogin}>
-              <Grid>
-                <Typography variant="h4" className={classes.header}>
-                  Welcome back!
-                </Typography>
+        <Grid container item justifyContent="center" xs={12}>
+          <Grid item>
+            <Box className={classes.formWidth}>
+              <form onSubmit={handleLogin}>
                 <Grid>
+                  <Typography variant="h4" className={classes.header}>
+                    Welcome back!
+                  </Typography>
+                  <Grid>
+                    <FormControl
+                      margin="normal"
+                      required
+                      className={classes.form}
+                    >
+                      <TextField
+                        aria-label="username"
+                        label="Username"
+                        name="username"
+                        type="text"
+                      />
+                    </FormControl>
+                  </Grid>
                   <FormControl
                     margin="normal"
                     required
                     className={classes.form}
                   >
                     <TextField
-                      aria-label="username"
-                      label="Username"
-                      name="username"
-                      type="text"
+                      label="password"
+                      aria-label="password"
+                      type="password"
+                      name="password"
                     />
                   </FormControl>
-                </Grid>
-                <FormControl margin="normal" required className={classes.form}>
-                  <TextField
-                    label="password"
-                    aria-label="password"
-                    type="password"
-                    name="password"
-                  />
-                </FormControl>
-                <FormControl margin="normal" required className={classes.form}>
-                  <Grid
-                    item
-                    container
-                    justifyContent="center"
-                    className={classes.loginContainer}
+                  <FormControl
+                    margin="normal"
+                    required
+                    className={classes.form}
                   >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      size="large"
-                      className={classes.login}
+                    <Grid
+                      item
+                      container
+                      justifyContent="center"
+                      className={classes.loginContainer}
                     >
-                      Login
-                    </Button>
-                  </Grid>
-                </FormControl>
-              </Grid>
-            </form>
-          </Box>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        className={classes.login}
+                      >
+                        Login
+                      </Button>
+                    </Grid>
+                  </FormControl>
+                </Grid>
+              </form>
+            </Box>
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </Layout>
   );
 };
 

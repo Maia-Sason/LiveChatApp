@@ -5,7 +5,6 @@ import { fetchUser } from "./store/utils/thunkCreators";
 import Signup from "./Signup.js";
 import Login from "./Login.js";
 import { Home, SnackbarError } from "./components";
-import Layout from "./Layout";
 
 const Routes = (props) => {
   const { user, fetchUser } = props;
@@ -42,10 +41,9 @@ const Routes = (props) => {
         />
       )}
       <Switch>
-        <Layout>
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Signup} />
-        </Layout>
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Signup} />
+
         <Route
           exact
           path="/"
