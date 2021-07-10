@@ -9,7 +9,8 @@ import {
   setSearchedUsers,
 } from "../conversations";
 import { addConvoId } from "../conversationList";
-import { gotUser, setFetchingStatus } from "../user";
+import { gotUser, setFetchingStatus, gotOnlineUsers } from "../user";
+import { Socket } from "socket.io-client";
 
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
@@ -25,9 +26,9 @@ export const fetchUser = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
-    if (data.id) {
-      socket.emit("go-online", data.id);
-    }
+
+    socket.emit("authenticate-pass", { id: data.id });
+    socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
   } finally {
@@ -35,13 +36,22 @@ export const fetchUser = () => async (dispatch) => {
   }
 };
 
+export const fetchOnlineUsers = (data) => async (dispatch) => {
+  const { onlineUsers } = await axios.get("/api/user-online");
+
+  dispatch(gotOnlineUsers(onlineUsers));
+};
+
 export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
+    socket.emit("authenticate", { token: data.token, id: data.id });
+    socket.emit("go-online", data.id);
     delete data.token;
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+
+    // socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -52,9 +62,10 @@ export const login = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
-    delete data.token;
     dispatch(gotUser(data));
+    socket.emit("authenticate", { token: data.token, id: data.id });
     socket.emit("go-online", data.id);
+    delete data.token;
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -97,14 +108,6 @@ export const fetchConversations = () => async (dispatch) => {
 };
 
 // Send conversationId and update entire conversation to read for certain user.
-export const asyncRead = async (body) => async (dispatch) => {
-  try {
-    await dispatch(readConversation(body));
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const readConversation = (body) => async (dispatch) => {
   try {
     const { data } = await axios.put("/api/conversations/read", body);
@@ -142,13 +145,13 @@ const sendMessage = (data, body) => {
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
-    await asyncRead({ id: body.conversationId });
 
     if (!body.conversationId) {
       dispatch(addConvoId(data.message.conversationId));
       dispatch(addConversation(body.recipientId, data.message));
     } else {
       dispatch(setNewMessage(data.message));
+      dispatch(readConversation({ id: body.conversationId }));
     }
 
     body.count = 0;

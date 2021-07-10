@@ -99,9 +99,6 @@ const mapDispatchToProps = (dispatch) => {
     postMessage: (message) => {
       dispatch(postMessage(message));
     },
-    readConversation: async (id) => {
-      await dispatch(readConversation(id));
-    },
     userTypingMessage: (bool, id) => {
       userTypingMessage(bool, id);
     },
