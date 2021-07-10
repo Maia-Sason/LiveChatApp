@@ -101,7 +101,7 @@ const saveMessage = async (body) => {
   return data;
 };
 
-const sendMessage = async (data, body) => {
+const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
@@ -123,7 +123,7 @@ export const postMessage = (body) => async (dispatch) => {
     }
     body.count = 0;
 
-    await sendMessage(data, body);
+    sendMessage(data, body);
   } catch (error) {
     console.error(error);
   }

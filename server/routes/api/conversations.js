@@ -20,9 +20,9 @@ router.get("/", async (req, res, next) => {
         },
       },
       attributes: ["id"],
-      order: [[Message, "createdAt", "ASC"]],
+      order: [[Message, "createdAt", "DESC"]],
       include: [
-        { model: Message, order: ["createdAt", "ASC"] },
+        { model: Message, order: ["createdAt", "DESC"] },
         {
           model: User,
           as: "user1",
@@ -48,10 +48,14 @@ router.get("/", async (req, res, next) => {
       ],
     });
 
+
     for (let i = 0; i < conversations.length; i++) {
+     
+     
       const convo = conversations[i];
 
       const convoJSON = convo.toJSON();
+
 
       try {
         const count = await Message.count({
@@ -66,6 +70,9 @@ router.get("/", async (req, res, next) => {
       } catch (error) {
         next(error);
       }
+
+      convoJSON.messages.reverse();
+
 
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
