@@ -51,9 +51,9 @@ io.on("connection", (socket) => {
     }
   });
 
+  //  if user is already authenticated
   socket.on("authenticate-pass", (data) => {
     userId = data.id;
-    console.log(userId);
     console.log("online");
   });
 
@@ -74,6 +74,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // send online status of all connected users in server to new client on page reload
   socket.on("add-users-to-new", (data) => {
     if (data.idToAdd) {
       const onlineId = data.idToAdd.toString();
