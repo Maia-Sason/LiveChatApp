@@ -59,8 +59,6 @@ class Input extends Component {
       text: "",
     });
 
-    // ISSUE WITH THIS LINE OF CODE!!!
-    // await this.props.readConversation({ id: reqBody.conversationId });
     await this.props.userTypingMessage(false, this.props.conversationId);
   };
 

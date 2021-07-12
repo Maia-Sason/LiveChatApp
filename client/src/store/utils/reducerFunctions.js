@@ -10,7 +10,7 @@ export const addMessageToStore = (state, payload) => {
     };
 
     newConvo.latestMessageText = message.text;
-    // Necessary for newConvo to populate online, but dangerous bc it sends to everyone
+
     return [...state, newConvo];
   }
 
@@ -20,17 +20,14 @@ export const addMessageToStore = (state, payload) => {
 
       convoCopy.messages.push(message);
 
+      convoCopy.count = convo.count;
+
       if (message.senderId === payload.storeCopy.user.id) {
         convoCopy.latestMessageRead = true;
       } else {
         convoCopy.latestMessageRead = message.read;
+        convoCopy.count = convoCopy.count + 1;
       }
-      convoCopy.count = 0;
-      convoCopy.messages.map((message) => {
-        if (!message.read && message.senderId !== payload.storeCopy.user.id) {
-          convoCopy.count = convoCopy.count + 1;
-        }
-      });
 
       convoCopy.latestMessageText = message.text;
 
@@ -76,7 +73,7 @@ export const updateConversationStatus = (state, payload) => {
     } else if (convo.id === payload.id && payload.live) {
       // If conversation was recieved from websockets only update messages from payload.
       const newConvo = { ...convo };
-      newConvo.messages = payload.messages; //might be where error lies
+      newConvo.messages = payload.messages;
       return newConvo;
     } else {
       return convo;

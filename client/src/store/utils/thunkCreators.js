@@ -26,8 +26,10 @@ export const fetchUser = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
+    if (data.id) {
+      socket.open();
+    }
 
-    socket.emit("authenticate-pass", { id: data.id });
     socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
@@ -46,12 +48,11 @@ export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
-    socket.emit("authenticate", { token: data.token, id: data.id });
+    socket.open();
+
     socket.emit("go-online", data.id);
     delete data.token;
     dispatch(gotUser(data));
-
-    // socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -63,7 +64,7 @@ export const login = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.emit("authenticate", { token: data.token, id: data.id });
+    socket.open();
     socket.emit("go-online", data.id);
     delete data.token;
   } catch (error) {
@@ -115,10 +116,7 @@ export const readConversation = (body) => async (dispatch) => {
     if (data.id) {
       dispatch(updateReadConversation(data));
     }
-
-    // Would be good to send a socket action here probably if we wanted to add
-    // live reading.
-    //  ie: await readMessage(data, body)
+    // Socket live reading
     readMessage(data);
   } catch (error) {
     console.error(error);
