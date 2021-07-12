@@ -1,6 +1,4 @@
 import React from "react";
-import { Redirect, useHistory } from "react-router-dom";
-import { connect } from "react-redux";
 import { Grid, Box, makeStyles, Typography } from "@material-ui/core";
 import { TopButton } from "./components/form";
 
