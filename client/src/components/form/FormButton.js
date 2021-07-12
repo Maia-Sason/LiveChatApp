@@ -5,7 +5,6 @@ const FormButton = ({ button, handleClick, clr, bgc, type }) => {
     root: {
       backgroundColor: bgc,
       color: clr,
-      // padding: "15px 30px",
       width: "12em",
       height: "4em",
       whiteSpace: "nowrap",
