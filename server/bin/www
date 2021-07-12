@@ -97,7 +97,6 @@ io.use((socket, next) => {
       recipientId: data.recipientId,
       conversationId: data.conversationId,
     };
-    console.log("sending messsage");
     // send a private message to the socket with the given id
     io.to(onlineUsers[onlineId]).emit("new-message", dataToSend);
   });

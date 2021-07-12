@@ -27,13 +27,6 @@ socket.on("connect", () => {
   console.log("connecting");
 });
 
-socket.on("authenticated", () => {
-  console.log("connected to server");
-});
-socket.on("unauthorized", (msg) => {
-  console.log("unauthorized, disconnecting");
-});
-
 socket.on("add-online-user", (id) => {
   const storeCopy = store.getState();
   console.log("Adding online user");
@@ -45,6 +38,7 @@ socket.on("add-online-user", (id) => {
 });
 
 socket.on("add-users-to-new", (id) => {
+  // This is for adding online users to new online users
   console.log("Adding online user");
   store.dispatch(addOnlineUser(id));
 });
