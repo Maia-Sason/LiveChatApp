@@ -5,6 +5,7 @@ import { Grid, Box, makeStyles, Typography } from "@material-ui/core";
 import { TopButton } from "./components/form";
 
 import HeroImage from "./components/HeroImage/HeroImage";
+import { FormButton } from "./components/form";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,7 +16,9 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     fontWeight: "bold",
-    paddingBottom: "40px",
+    paddingTop: "1em",
+    paddingBottom: "1em",
+    whiteSpace: "nowrap",
   },
   inset: {
     padding: "2em",
@@ -23,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
   },
   formWidth: {
     width: "50vw",
+  },
+  loginContainer: {
+    padding: "20px",
   },
 }));
 
@@ -32,6 +38,8 @@ const Layout = ({
   buttonText,
   handleClick,
   greeting,
+  submit,
+  formSubmit,
 }) => {
   const classes = useStyles();
   return (
@@ -61,7 +69,22 @@ const Layout = ({
                   <Typography variant="h4" className={classes.header}>
                     {greeting}
                   </Typography>
-                  {children}
+                  <form onSubmit={formSubmit}>
+                    {children}
+                    <Grid
+                      item
+                      container
+                      justifyContent="center"
+                      className={classes.loginContainer}
+                    >
+                      <FormButton
+                        type={"submit"}
+                        clr={"white"}
+                        bgc={"#3A8DFF"}
+                        button={submit}
+                      />
+                    </Grid>
+                  </form>
                 </Box>
               </Grid>
             </Grid>

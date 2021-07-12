@@ -10,16 +10,12 @@ import {
 } from "@material-ui/core";
 import Layout from "./Layout";
 
-import { FormButton } from "./components/form";
-
 import { register } from "./store/utils/thunkCreators";
 
 const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%",
-  },
-  loginContainer: {
-    padding: "20px",
+    paddingBottom: "2em",
   },
 }));
 
@@ -55,86 +51,65 @@ const Login = (props) => {
       headerPrompt={"Already have an account?"}
       buttonText={"Login"}
       handleClick={() => history.push("/login")}
+      submit={"Create"}
+      formSubmit={handleRegister}
     >
-      <form onSubmit={handleRegister}>
-        <Grid>
-          <Grid>
-            <FormControl margin="normal" className={classes.form}>
-              <TextField
-                aria-label="username"
-                label="Username"
-                name="username"
-                type="text"
-                required
-              />
-            </FormControl>
-          </Grid>
-          <Grid>
-            <FormControl margin="normal" className={classes.form}>
-              <TextField
-                label="E-mail address"
-                aria-label="e-mail address"
-                type="email"
-                name="email"
-                required
-              />
-            </FormControl>
-          </Grid>
-          <Grid>
-            <FormControl
-              margin="normal"
-              error={!!formErrorMessage.confirmPassword}
-              className={classes.form}
-            >
-              <TextField
-                aria-label="password"
-                label="Password"
-                type="password"
-                inputProps={{ minLength: 6 }}
-                name="password"
-                required
-              />
-              <FormHelperText>
-                {formErrorMessage.confirmPassword}
-              </FormHelperText>
-            </FormControl>
-          </Grid>
-          <Grid>
-            <FormControl
-              margin="normal"
-              error={!!formErrorMessage.confirmPassword}
-              className={classes.form}
-            >
-              <TextField
-                label="Confirm Password"
-                aria-label="confirm password"
-                type="password"
-                inputProps={{ minLength: 6 }}
-                name="confirmPassword"
-                required
-              />
-              <FormHelperText>
-                {formErrorMessage.confirmPassword}
-              </FormHelperText>
-            </FormControl>
-          </Grid>
-          <FormControl margin="normal" required className={classes.form}>
-            <Grid
-              item
-              container
-              justifyContent="center"
-              className={classes.loginContainer}
-            >
-              <FormButton
-                type={"submit"}
-                clr={"white"}
-                bgc={"#3A8DFF"}
-                button={"Create"}
-              />
-            </Grid>
-          </FormControl>
-        </Grid>
-      </form>
+      <Grid>
+        <FormControl margin="normal" className={classes.form}>
+          <TextField
+            aria-label="username"
+            label="Username"
+            name="username"
+            type="text"
+            required
+          />
+        </FormControl>
+      </Grid>
+      <Grid>
+        <FormControl margin="normal" className={classes.form}>
+          <TextField
+            label="E-mail address"
+            aria-label="e-mail address"
+            type="email"
+            name="email"
+            required
+          />
+        </FormControl>
+      </Grid>
+      <Grid>
+        <FormControl
+          margin="normal"
+          error={!!formErrorMessage.confirmPassword}
+          className={classes.form}
+        >
+          <TextField
+            aria-label="password"
+            label="Password"
+            type="password"
+            inputProps={{ minLength: 6 }}
+            name="password"
+            required
+          />
+          <FormHelperText>{formErrorMessage.confirmPassword}</FormHelperText>
+        </FormControl>
+      </Grid>
+      <Grid>
+        <FormControl
+          margin="normal"
+          error={!!formErrorMessage.confirmPassword}
+          className={classes.form}
+        >
+          <TextField
+            label="Confirm Password"
+            aria-label="confirm password"
+            type="password"
+            inputProps={{ minLength: 6 }}
+            name="confirmPassword"
+            required
+          />
+          <FormHelperText>{formErrorMessage.confirmPassword}</FormHelperText>
+        </FormControl>
+      </Grid>
     </Layout>
   );
 };

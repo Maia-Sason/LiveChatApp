@@ -5,14 +5,11 @@ import { Grid, FormControl, TextField, makeStyles } from "@material-ui/core";
 
 import { login } from "./store/utils/thunkCreators";
 import Layout from "./Layout";
-import { FormButton } from "./components/form";
 
 const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%",
-  },
-  loginContainer: {
-    padding: "20px",
+    paddingBottom: "2em",
   },
 }));
 
@@ -39,42 +36,27 @@ const Login = (props) => {
       headerPrompt={"Don't have an account?"}
       buttonText={"Create account"}
       handleClick={() => history.push("/register")}
+      formSubmit={handleLogin}
+      submit={"Login"}
     >
-      <form onSubmit={handleLogin}>
-        <Grid>
-          <FormControl margin="normal" required className={classes.form}>
-            <TextField
-              aria-label="username"
-              label="Username"
-              name="username"
-              type="text"
-            />
-          </FormControl>
-        </Grid>
+      <Grid>
         <FormControl margin="normal" required className={classes.form}>
           <TextField
-            label="password"
-            aria-label="password"
-            type="password"
-            name="password"
+            aria-label="username"
+            label="Username"
+            name="username"
+            type="text"
           />
         </FormControl>
-        <FormControl margin="normal" required className={classes.form}>
-          <Grid
-            item
-            container
-            justifyContent="center"
-            className={classes.loginContainer}
-          >
-            <FormButton
-              type={"submit"}
-              clr={"white"}
-              bgc={"#3A8DFF"}
-              button={"Login"}
-            />
-          </Grid>
-        </FormControl>
-      </form>
+      </Grid>
+      <FormControl margin="normal" required className={classes.form}>
+        <TextField
+          label="password"
+          aria-label="password"
+          type="password"
+          name="password"
+        />
+      </FormControl>
     </Layout>
   );
 };
