@@ -48,11 +48,14 @@ router.get("/", async (req, res, next) => {
       ],
     });
 
+    const convoId = [];
 
     for (let i = 0; i < conversations.length; i++) {
      
      
       const convo = conversations[i];
+
+      convoId.push(convo.id);
 
       const convoJSON = convo.toJSON();
 
@@ -84,7 +87,7 @@ router.get("/", async (req, res, next) => {
       }
 
       // set property for online status of the other user
-      if (onlineUsers.includes(convoJSON.otherUser.id)) {
+      if (onlineUsers[convoJSON.otherUser.id]) {
         convoJSON.otherUser.online = true;
       } else {
         convoJSON.otherUser.online = false;
@@ -108,7 +111,9 @@ router.get("/", async (req, res, next) => {
       conversations[i] = convoJSON;
     }
 
-    res.json(conversations);
+    const dataJSON = Object.assign({}, { conversations }, { convoId });
+
+    res.json(dataJSON);
   } catch (error) {
     next(error);
   }
@@ -169,6 +174,10 @@ router.put("/read", async (req, res, next) => {
       ],
     });
 
+    const messages = await Message.findAll({
+      where: { conversationId: conversationId },
+    });
+
     for (let i = 0; i < conversation.messages.length; i++) {
       if (req.user.id !== conversation.messages[i].senderId) {
         try {
@@ -191,7 +200,7 @@ router.put("/read", async (req, res, next) => {
     }
 
     // set property for online status of the other user
-    if (onlineUsers.includes(convoJSON.otherUser.id)) {
+    if (onlineUsers[convoJSON.otherUser.id]) {
       convoJSON.otherUser.online = true;
     } else {
       convoJSON.otherUser.online = false;

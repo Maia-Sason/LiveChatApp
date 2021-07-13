@@ -10,7 +10,7 @@ export const addMessageToStore = (state, payload) => {
     };
 
     newConvo.latestMessageText = message.text;
-    // Necessary for newConvo to populate online, but dangerous bc it sends to everyone
+
     return [...state, newConvo];
   }
 
@@ -19,6 +19,8 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo };
 
       convoCopy.messages.push(message);
+
+      convoCopy.count = convo.count;
 
       if (message.senderId === payload.storeCopy.user.id) {
         convoCopy.latestMessageRead = true;
@@ -64,10 +66,27 @@ export const addNewConvoToStore = (state, storeCopy, recipientId, message) => {
 export const updateConversationStatus = (state, payload) => {
   // On trigger, update the conversation so that messages are read.
   return state.map((convo) => {
-    if (convo.id === payload.id) {
+    if (convo.id === payload.id && !payload.live) {
       const newConvo = { ...payload };
-
+      newConvo.live = convo.live;
       return newConvo;
+    } else if (convo.id === payload.id && payload.live) {
+      // If conversation was recieved from websockets only update messages from payload.
+      const newConvo = { ...convo };
+      newConvo.messages = payload.messages;
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const setTypingStatusStore = (state, bool, id) => {
+  return state.map((convo) => {
+    if (convo.id === id) {
+      const convoCopy = { ...convo };
+      convoCopy.live = bool;
+      return convoCopy;
     } else {
       return convo;
     }
