@@ -64,6 +64,7 @@ socket.on("read-message", (data) => {
 });
 
 socket.on("read-message-concurrently", (data) => {
+  // This is for a user's logged in accounts to all updated once he/she read message from any other account.
   store.dispatch(updateReadConversation(data));
 });
 
