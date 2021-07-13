@@ -35,7 +35,7 @@ const { User } = require("../db/models");
 
 io.use((socket, next) => {
   const token = socket.handshake.auth.auth;
-  console.log(socket.handshake.query.EIO);
+  console.log(socket.handshake.auth.user);
   console.log(token);
   if (token) {
     jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
@@ -57,9 +57,15 @@ io.use((socket, next) => {
   }
 }).on("connection", (socket) => {
   socket.on("disconnect", () => {
-    const userId = socket.handshake.query.EIO;
+    const userId = socket.handshake.auth.user;
     const socketId = socket.id.toString();
+    console.log("\n\n USER ID \n\n");
+    console.log(userId);
+    console.log(Object.keys(onlineUsers));
+
+    console.log("endofuserid");
     if (onlineUsers[userId] && onlineUsers[userId][socketId]) {
+      console.log("DELETING");
       delete onlineUsers[userId][socketId];
       if (
         onlineUsers[userId] &&
@@ -101,7 +107,7 @@ io.use((socket, next) => {
       const socketId = socket.id.toString();
       if (!onlineUsers[onlineId]) {
         onlineUsers[onlineId] = {};
-        onlineUsers[onlineId] = { [socket.id]: true };
+        onlineUsers[onlineId] = { [socketId]: true };
 
         const array = Object.keys(onlineUsers[data.idToRecieve]);
 
@@ -114,6 +120,7 @@ io.use((socket, next) => {
   });
 
   socket.on("new-message", (data) => {
+    const userId = socket.handshake.auth.user;
     const onlineId = data.recipientId.toString();
 
     const dataToSend = {
@@ -127,6 +134,12 @@ io.use((socket, next) => {
     // send a private message to the socket with the given id
     array.map((item) => {
       io.to(item).emit("new-message", dataToSend);
+    });
+    const arraySender = Object.keys(onlineUsers[userId]);
+    arraySender.map((item) => {
+      if (item !== socket.id) {
+        io.to(item).emit("new-message", dataToSend);
+      }
     });
   });
 

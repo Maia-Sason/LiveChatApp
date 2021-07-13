@@ -10,6 +10,7 @@ import {
 } from "../conversations";
 import { addConvoId } from "../conversationList";
 import { gotUser, setFetchingStatus, gotOnlineUsers } from "../user";
+import store from "..";
 
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
@@ -89,7 +90,9 @@ export const logout = (id) => async (dispatch) => {
 // CONVERSATIONS THUNK CREATORS
 
 const typingMessage = (bool, id) => {
-  socket.emit("user-typing", { bool, id });
+  const storeCopy = store.getState();
+  const userId = storeCopy.user.id;
+  socket.emit("user-typing", { bool, id, userId });
 };
 
 export const userTypingMessage = (bool, id) => {

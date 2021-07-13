@@ -13,10 +13,10 @@ let socket = io(window.location.origin, {
   autoConnect: false,
   withCredentials: true,
   auth: async (cb) => {
-    cb({ auth: await localStorage.getItem("messenger-token") });
-  },
-  query: async (cb) => {
-    cb({ user: await localStorage.getItem("sessionUser") });
+    cb({
+      auth: await localStorage.getItem("messenger-token"),
+      user: await store.getState().user.id,
+    });
   },
 });
 
@@ -66,8 +66,10 @@ socket.on("read-message", (data) => {
 
 socket.on("user-typing", (data) => {
   const storeCopy = store.getState();
-  if (storeCopy.conversationList.includes(data.id)) {
-    store.dispatch(updateUserTypingStatus(data));
+  if (data.userId !== storeCopy.user.id) {
+    if (storeCopy.conversationList.includes(data.id)) {
+      store.dispatch(updateUserTypingStatus(data));
+    }
   }
 });
 
