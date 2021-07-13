@@ -20,9 +20,9 @@ router.get("/", async (req, res, next) => {
         },
       },
       attributes: ["id"],
-      order: [[Message, "createdAt", "ASC"]],
+      order: [[Message, "createdAt", "DESC"]],
       include: [
-        { model: Message, order: ["createdAt", "ASC"] },
+        { model: Message, order: ["createdAt", "DESC"] },
         {
           model: User,
           as: "user1",
@@ -51,11 +51,31 @@ router.get("/", async (req, res, next) => {
     const convoId = [];
 
     for (let i = 0; i < conversations.length; i++) {
+     
+     
       const convo = conversations[i];
 
       convoId.push(convo.id);
 
       const convoJSON = convo.toJSON();
+
+
+      try {
+        const count = await Message.count({
+          where: {
+            conversationId: convo.id,
+            read: false,
+            senderId: { [Op.not]: userId },
+          },
+        });
+
+        convoJSON.count = count;
+      } catch (error) {
+        next(error);
+      }
+
+      convoJSON.messages.reverse();
+
 
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
@@ -77,16 +97,6 @@ router.get("/", async (req, res, next) => {
 
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
-
-      convoJSON.count = 0;
-      for (let i = 0; i < convoJSON.messages.length; i++) {
-        if (
-          req.user.id !== convoJSON.messages[i].senderId &&
-          !convoJSON.messages[i].read
-        ) {
-          convoJSON.count++;
-        }
-      }
 
       if (
         req.user.id ===

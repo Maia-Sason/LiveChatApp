@@ -152,7 +152,9 @@ export const postMessage = (body) => async (dispatch) => {
       dispatch(readConversation({ id: body.conversationId }));
     }
 
+
     body.count = 0;
+
     sendMessage(data, body);
   } catch (error) {
     console.error(error);
