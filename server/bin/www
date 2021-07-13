@@ -33,45 +33,62 @@ const io = require("socket.io")(server);
 const jwt = require("jsonwebtoken");
 const { User } = require("../db/models");
 
-let userId = null;
-let sessionUser = null;
-
 io.use((socket, next) => {
-  const token = socket.request.headers["x-access-token"];
-
+  const token = socket.handshake.auth.auth;
+  console.log(socket.handshake.query.EIO);
+  console.log(token);
   if (token) {
     jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
       if (err) {
+        socket.disconnect();
         console.log(err);
         return next();
       }
       User.findOne({
         where: { id: decoded.id },
-      }).then((user) => {
-        sessionUser = user;
-        userId = sessionUser.id;
+      }).then(() => {
         console.log("online");
         return next();
       });
     });
   } else {
+    socket.disconnect();
     return next();
   }
 }).on("connection", (socket) => {
   socket.on("disconnect", () => {
-    delete onlineUsers[userId];
-    sessionUser = null;
-    userId = null;
-    socket.broadcast.emit("remove-offline-user", userId);
+    const userId = socket.handshake.query.EIO;
+    const socketId = socket.id.toString();
+    if (onlineUsers[userId] && onlineUsers[userId][socketId]) {
+      delete onlineUsers[userId][socketId];
+      if (
+        onlineUsers[userId] &&
+        Object.keys(onlineUsers[userId]).length === 0
+      ) {
+        socket.broadcast.emit("remove-offline-user", userId);
+      }
+    }
+    // console.log(
+    //   "number of connections left for client: " +
+    //     Object.keys(onlineUsers[userId]).length
+    // );
     console.log("Client disconnected");
   });
 
   socket.on("go-online", (id) => {
     if (id) {
       const onlineId = id.toString();
+      const socketId = socket.id.toString();
       if (!onlineUsers[onlineId]) {
-        onlineUsers[onlineId] = socket.id;
+        onlineUsers[onlineId] = {};
+        onlineUsers[onlineId] = { [socketId]: true };
+      } else {
+        onlineUsers[onlineId] = { ...onlineUsers[onlineId], [socketId]: true };
       }
+      console.log("ONLINE USERS");
+      console.log(onlineUsers[onlineId]);
+      console.log(Object.keys(onlineUsers[onlineId]).length);
+
       // send the user who just went online to everyone else who is already online
       socket.broadcast.emit("add-online-user", id);
     }
@@ -81,9 +98,17 @@ io.use((socket, next) => {
   socket.on("add-users-to-new", (data) => {
     if (data.idToAdd) {
       const onlineId = data.idToAdd.toString();
+      const socketId = socket.id.toString();
       if (!onlineUsers[onlineId]) {
-        onlineUsers[onlineId] = socket.id;
-        io.to(onlineUsers[data.idToRecieve]).emit("add-users-to-new");
+        onlineUsers[onlineId] = {};
+        onlineUsers[onlineId] = { [socket.id]: true };
+
+        const array = Object.keys(onlineUsers[data.idToRecieve]);
+
+        array.map((idToRecieve) => {
+          console.log(idToRecieve);
+          io.to(idToRecieve).emit("add-users-to-new");
+        });
       }
     }
   });
@@ -97,8 +122,12 @@ io.use((socket, next) => {
       recipientId: data.recipientId,
       conversationId: data.conversationId,
     };
+    const array = Object.keys(onlineUsers[onlineId]);
+
     // send a private message to the socket with the given id
-    io.to(onlineUsers[onlineId]).emit("new-message", dataToSend);
+    array.map((item) => {
+      io.to(item).emit("new-message", dataToSend);
+    });
   });
 
   socket.on("read-message", (data) => {
@@ -110,14 +139,18 @@ io.use((socket, next) => {
   });
 
   socket.on("logout", (id) => {
-    sessionUser = null;
-    userId = null;
     const onlineId = id.toString();
-    if (onlineUsers[onlineId]) {
+
+    console.log(onlineUsers);
+    if (Object.keys(onlineUsers[onlineId]).length <= 1) {
       delete onlineUsers[onlineId];
+
       socket.broadcast.emit("remove-offline-user", id);
-      socket.disconnect();
     }
+    if (onlineUsers[onlineId]) {
+      console.log(Object.keys(onlineUsers[onlineId]).length);
+    }
+    socket.disconnect();
   });
 });
 

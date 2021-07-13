@@ -10,7 +10,6 @@ import {
 } from "../conversations";
 import { addConvoId } from "../conversationList";
 import { gotUser, setFetchingStatus, gotOnlineUsers } from "../user";
-import { Socket } from "socket.io-client";
 
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
@@ -48,6 +47,7 @@ export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
+    await localStorage.setItem("sessionUser", data.id);
     socket.open();
 
     socket.emit("go-online", data.id);
@@ -63,6 +63,7 @@ export const login = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
+    await localStorage.setItem("sessionUser", data.id);
     dispatch(gotUser(data));
     socket.open();
     socket.emit("go-online", data.id);
@@ -77,6 +78,7 @@ export const logout = (id) => async (dispatch) => {
   try {
     await axios.delete("/auth/logout");
     await localStorage.removeItem("messenger-token");
+    await localStorage.removeItem("sessionUser");
     dispatch(gotUser({}));
     socket.emit("logout", id);
   } catch (error) {

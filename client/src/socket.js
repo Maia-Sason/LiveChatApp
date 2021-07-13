@@ -9,13 +9,14 @@ import {
   updateUserTypingStatus,
 } from "./store/conversations";
 
-const jwt = localStorage.getItem("messenger-token");
-
 let socket = io(window.location.origin, {
   autoConnect: false,
   withCredentials: true,
-  extraHeaders: {
-    ["x-access-token"]: localStorage.getItem("messenger-token"),
+  auth: async (cb) => {
+    cb({ auth: await localStorage.getItem("messenger-token") });
+  },
+  query: async (cb) => {
+    cb({ user: await localStorage.getItem("sessionUser") });
   },
 });
 
