@@ -1,4 +1,3 @@
-import { CssBaseline } from "@material-ui/core";
 import io from "socket.io-client";
 import store from "./store";
 import {
@@ -58,10 +57,14 @@ socket.on("read-message", (data) => {
   const storeCopy = store.getState();
   data.live = true;
   if (data.id !== null) {
-    if (data.otherUser.id === storeCopy.user.id) {
+    if (storeCopy.conversationList.includes(data.id)) {
       store.dispatch(updateReadConversation(data));
     }
   }
+});
+
+socket.on("read-message-concurrently", (data) => {
+  store.dispatch(updateReadConversation(data));
 });
 
 socket.on("user-typing", (data) => {

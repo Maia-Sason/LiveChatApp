@@ -48,7 +48,6 @@ export const register = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
-    await localStorage.setItem("sessionUser", data.id);
     socket.open();
 
     socket.emit("go-online", data.id);
@@ -64,7 +63,6 @@ export const login = (credentials) => async (dispatch) => {
   try {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
-    await localStorage.setItem("sessionUser", data.id);
     dispatch(gotUser(data));
     socket.open();
     socket.emit("go-online", data.id);
@@ -75,13 +73,12 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
-export const logout = (id) => async (dispatch) => {
+export const logout = () => async (dispatch) => {
   try {
     await axios.delete("/auth/logout");
     await localStorage.removeItem("messenger-token");
-    await localStorage.removeItem("sessionUser");
     dispatch(gotUser({}));
-    socket.emit("logout", id);
+    socket.emit("logout");
   } catch (error) {
     console.error(error);
   }
@@ -89,14 +86,10 @@ export const logout = (id) => async (dispatch) => {
 
 // CONVERSATIONS THUNK CREATORS
 
-const typingMessage = (bool, id) => {
+export const userTypingMessage = (bool, id) => {
   const storeCopy = store.getState();
   const userId = storeCopy.user.id;
   socket.emit("user-typing", { bool, id, userId });
-};
-
-export const userTypingMessage = (bool, id) => {
-  typingMessage(bool, id);
 };
 
 const readMessage = async (data) => {
@@ -116,11 +109,13 @@ export const fetchConversations = () => async (dispatch) => {
 // Send conversationId and update entire conversation to read for certain user.
 export const readConversation = (body) => async (dispatch) => {
   try {
+    const storeCopy = store.getState();
     const { data } = await axios.put("/api/conversations/read", body);
 
     if (data.id) {
       dispatch(updateReadConversation(data));
     }
+    data.currentUser = storeCopy.user.id;
     // Socket live reading
     readMessage(data);
   } catch (error) {

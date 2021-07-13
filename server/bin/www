@@ -35,14 +35,12 @@ const { User } = require("../db/models");
 
 io.use((socket, next) => {
   const token = socket.handshake.auth.auth;
-  console.log(socket.handshake.auth.user);
-  console.log(token);
+
   if (token) {
     jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
       if (err) {
         socket.disconnect();
         console.log(err);
-        return next();
       }
       User.findOne({
         where: { id: decoded.id },
@@ -56,16 +54,12 @@ io.use((socket, next) => {
     return next();
   }
 }).on("connection", (socket) => {
+  // Handles all removing from online!
   socket.on("disconnect", () => {
     const userId = socket.handshake.auth.user;
     const socketId = socket.id.toString();
-    console.log("\n\n USER ID \n\n");
-    console.log(userId);
-    console.log(Object.keys(onlineUsers));
 
-    console.log("endofuserid");
     if (onlineUsers[userId] && onlineUsers[userId][socketId]) {
-      console.log("DELETING");
       delete onlineUsers[userId][socketId];
       if (
         onlineUsers[userId] &&
@@ -74,10 +68,6 @@ io.use((socket, next) => {
         socket.broadcast.emit("remove-offline-user", userId);
       }
     }
-    // console.log(
-    //   "number of connections left for client: " +
-    //     Object.keys(onlineUsers[userId]).length
-    // );
     console.log("Client disconnected");
   });
 
@@ -91,9 +81,6 @@ io.use((socket, next) => {
       } else {
         onlineUsers[onlineId] = { ...onlineUsers[onlineId], [socketId]: true };
       }
-      console.log("ONLINE USERS");
-      console.log(onlineUsers[onlineId]);
-      console.log(Object.keys(onlineUsers[onlineId]).length);
 
       // send the user who just went online to everyone else who is already online
       socket.broadcast.emit("add-online-user", id);
@@ -111,8 +98,8 @@ io.use((socket, next) => {
 
         const array = Object.keys(onlineUsers[data.idToRecieve]);
 
+        // Send to all socket id's of that user.
         array.map((idToRecieve) => {
-          console.log(idToRecieve);
           io.to(idToRecieve).emit("add-users-to-new");
         });
       }
@@ -135,34 +122,33 @@ io.use((socket, next) => {
     array.map((item) => {
       io.to(item).emit("new-message", dataToSend);
     });
-    const arraySender = Object.keys(onlineUsers[userId]);
-    arraySender.map((item) => {
-      if (item !== socket.id) {
-        io.to(item).emit("new-message", dataToSend);
-      }
-    });
+    if (onlineUsers[userId]) {
+      const arraySender = Object.keys(onlineUsers[userId]);
+      // Send to all socket id's of sender except for original sender socket id (so that sender's messages permeate throughout all of their logged in instances)
+      arraySender.map((item) => {
+        if (item !== socket.id) {
+          io.to(item).emit("new-message", dataToSend);
+        }
+      });
+    }
   });
 
   socket.on("read-message", (data) => {
     socket.broadcast.emit("read-message", data);
+
+    if (onlineUsers[data.currentUser]) {
+      const arraySender = Object.keys(onlineUsers[data.currentUser]);
+      arraySender.map((item) => {
+        io.to(item).emit("read-message-concurrently", data);
+      });
+    }
   });
 
   socket.on("user-typing", (data) => {
     socket.broadcast.emit("user-typing", data);
   });
 
-  socket.on("logout", (id) => {
-    const onlineId = id.toString();
-
-    console.log(onlineUsers);
-    if (Object.keys(onlineUsers[onlineId]).length <= 1) {
-      delete onlineUsers[onlineId];
-
-      socket.broadcast.emit("remove-offline-user", id);
-    }
-    if (onlineUsers[onlineId]) {
-      console.log(Object.keys(onlineUsers[onlineId]).length);
-    }
+  socket.on("logout", () => {
     socket.disconnect();
   });
 });
