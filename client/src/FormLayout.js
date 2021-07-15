@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Layout = ({
+const FormLayout = ({
   children,
   headerPrompt,
   buttonText,
@@ -93,4 +93,4 @@ const Layout = ({
   );
 };
 
-export default Layout;
+export default FormLayout;

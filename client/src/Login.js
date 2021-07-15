@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Grid, FormControl, TextField, makeStyles } from "@material-ui/core";
 
 import { login } from "./store/utils/thunkCreators";
-import Layout from "./Layout";
+import FormLayout from "./FormLayout";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -31,7 +31,7 @@ const Login = (props) => {
   }
 
   return (
-    <Layout
+    <FormLayout
       greeting={"Welcome back!"}
       headerPrompt={"Don't have an account?"}
       buttonText={"Create account"}
@@ -57,7 +57,7 @@ const Login = (props) => {
           name="password"
         />
       </FormControl>
-    </Layout>
+    </FormLayout>
   );
 };
 

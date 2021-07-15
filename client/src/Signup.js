@@ -8,7 +8,7 @@ import {
   FormHelperText,
   makeStyles,
 } from "@material-ui/core";
-import Layout from "./Layout";
+import FormLayout from "./FormLayout";
 
 import { register } from "./store/utils/thunkCreators";
 
@@ -46,7 +46,7 @@ const Login = (props) => {
   }
 
   return (
-    <Layout
+    <FormLayout
       greeting={"Create an account."}
       headerPrompt={"Already have an account?"}
       buttonText={"Login"}
@@ -110,7 +110,7 @@ const Login = (props) => {
           <FormHelperText>{formErrorMessage.confirmPassword}</FormHelperText>
         </FormControl>
       </Grid>
-    </Layout>
+    </FormLayout>
   );
 };
 
