@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@material-ui/core";
+import { Notification } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -17,6 +18,10 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 12,
     color: "#9CADC8",
     letterSpacing: -0.17,
+  },
+  previewTextUnread: {
+    color: "black",
+    fontWeight: 700,
   },
   notification: {
     height: 20,
@@ -38,7 +43,12 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
+  const {
+    latestMessageText,
+    otherUser,
+    latestMessageRead,
+    live,
+  } = conversation;
 
   return (
     <Box className={classes.root}>
@@ -46,9 +56,23 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
-          {latestMessageText}
-        </Typography>
+        {live ? (
+          <Typography className={classes.previewText}>
+            <em>Typing...</em>
+          </Typography>
+        ) : (
+          <>
+            {latestMessageRead ? (
+              <Typography className={classes.previewText}>
+                {latestMessageText}
+              </Typography>
+            ) : (
+              <Typography className={classes.previewTextUnread}>
+                {latestMessageText}
+              </Typography>
+            )}
+          </>
+        )}
       </Box>
     </Box>
   );

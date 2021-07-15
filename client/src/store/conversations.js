@@ -4,7 +4,11 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  updateConversationStatus,
+  setTypingStatusStore,
 } from "./utils/reducerFunctions";
+
+import store from "../store";
 
 // ACTIONS
 
@@ -15,8 +19,24 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const SET_READ_CONVERSATION = "SET_READ_CONVERSATION";
+const SET_TYPING_STATUS = "SET_TYPING_STATUS";
 
 // ACTION CREATORS
+
+export const updateUserTypingStatus = (data) => {
+  return {
+    type: SET_TYPING_STATUS,
+    payload: { bool: data.bool, id: data.id },
+  };
+};
+
+export const updateReadConversation = (conversation) => {
+  return {
+    type: SET_READ_CONVERSATION,
+    payload: { conversation },
+  };
+};
 
 export const gotConversations = (conversations) => {
   return {
@@ -26,9 +46,10 @@ export const gotConversations = (conversations) => {
 };
 
 export const setNewMessage = (message, sender) => {
+  const storeCopy = store.getState();
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, storeCopy, sender: sender || null },
   };
 };
 
@@ -61,9 +82,10 @@ export const clearSearchedUsers = () => {
 
 // add new conversation when sending a new message
 export const addConversation = (recipientId, newMessage) => {
+  const storeCopy = store.getState();
   return {
     type: ADD_CONVERSATION,
-    payload: { recipientId, newMessage },
+    payload: { recipientId, storeCopy, newMessage },
   };
 };
 
@@ -73,6 +95,14 @@ const reducer = (state = [], action) => {
   switch (action.type) {
     case GET_CONVERSATIONS:
       return action.conversations;
+    case SET_READ_CONVERSATION:
+      return updateConversationStatus(state, action.payload.conversation);
+    case SET_TYPING_STATUS:
+      return setTypingStatusStore(
+        state,
+        action.payload.bool,
+        action.payload.id
+      );
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {
@@ -88,6 +118,7 @@ const reducer = (state = [], action) => {
     case ADD_CONVERSATION:
       return addNewConvoToStore(
         state,
+        action.payload.storeCopy,
         action.payload.recipientId,
         action.payload.newMessage
       );
