@@ -1,17 +1,22 @@
 import React from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  Grid,
-  Box,
-  Typography,
-  Button,
-  FormControl,
-  TextField,
-} from "@material-ui/core";
-import { fetchUser, login } from "./store/utils/thunkCreators";
+
+import { Grid, FormControl, TextField, makeStyles } from "@material-ui/core";
+
+import { login } from "./store/utils/thunkCreators";
+import FormLayout from "./FormLayout";
+
+const useStyles = makeStyles((theme) => ({
+  form: {
+    width: "100%",
+    paddingBottom: "2em",
+  },
+}));
+
 
 const Login = (props) => {
+  const classes = useStyles();
   const history = useHistory();
   const { user, login } = props;
 
@@ -28,41 +33,33 @@ const Login = (props) => {
   }
 
   return (
-    <Grid container justify="center">
-      <Box>
-        <Grid container item>
-          <Typography>Need to register?</Typography>
-          <Button onClick={() => history.push("/register")}>Register</Button>
-        </Grid>
-        <form onSubmit={handleLogin}>
-          <Grid>
-            <Grid>
-              <FormControl margin="normal" required>
-                <TextField
-                  aria-label="username"
-                  label="Username"
-                  name="username"
-                  type="text"
-                />
-              </FormControl>
-            </Grid>
-            <FormControl margin="normal" required>
-              <TextField
-                label="password"
-                aria-label="password"
-                type="password"
-                name="password"
-              />
-            </FormControl>
-            <Grid>
-              <Button type="submit" variant="contained" size="large">
-                Login
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Box>
-    </Grid>
+    <FormLayout
+      greeting={"Welcome back!"}
+      headerPrompt={"Don't have an account?"}
+      buttonText={"Create account"}
+      handleClick={() => history.push("/register")}
+      formSubmit={handleLogin}
+      submit={"Login"}
+    >
+      <Grid>
+        <FormControl margin="normal" required className={classes.form}>
+          <TextField
+            aria-label="username"
+            label="Username"
+            name="username"
+            type="text"
+          />
+        </FormControl>
+      </Grid>
+      <FormControl margin="normal" required className={classes.form}>
+        <TextField
+          label="password"
+          aria-label="password"
+          type="password"
+          name="password"
+        />
+      </FormControl>
+    </FormLayout>
   );
 };
 
