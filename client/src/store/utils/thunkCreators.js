@@ -144,14 +144,16 @@ export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
 
+    const storeCopy = store.getState();
     if (!body.conversationId) {
-      dispatch(addConvoId(data.message.conversationId));
+      if (!storeCopy.conversationList.includes(data.message.conversationId)) {
+        dispatch(addConvoId(data.message.conversationId));
+      }
       dispatch(addConversation(body.recipientId, data.message));
     } else {
       dispatch(setNewMessage(data.message));
       dispatch(readConversation({ id: body.conversationId }));
     }
-
 
     body.count = 0;
 
@@ -167,5 +169,14 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     dispatch(setSearchedUsers(data));
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const usersById = (id) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/api/users/user-id/${id}`);
+    dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.log(error);
   }
 };

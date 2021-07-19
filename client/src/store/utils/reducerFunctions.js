@@ -9,7 +9,23 @@ export const addMessageToStore = (state, payload) => {
       count: 1,
     };
 
+    // Check if convo already exists as fake, if yes, don't add new convo, just update this one
     newConvo.latestMessageText = message.text;
+    let exist = false;
+    state.map((convo) => {
+      if (sender.id === convo.otherUser.id) {
+        exist = true;
+      }
+    });
+    if (exist) {
+      return state.map((convo) => {
+        if (sender.id === convo.otherUser.id) {
+          return newConvo;
+        } else {
+          return convo;
+        }
+      });
+    }
 
     return [...state, newConvo];
   }
@@ -39,6 +55,30 @@ export const addMessageToStore = (state, payload) => {
 };
 
 export const addNewConvoToStore = (state, storeCopy, recipientId, message) => {
+  let exist = false;
+  state.map((convo) => {
+    if (convo.otherUser.id === recipientId) {
+      exist = true;
+    }
+  });
+
+  if (!exist) {
+    // If convo doesn't exist because user hasn't searched the recipient yet, add it to store.
+    const newConvo = {};
+    newConvo.otherUser = { id: recipientId, username: "bob" };
+    newConvo.id = message.conversationId;
+    newConvo.message = [message];
+    newConvo.count = 0;
+    if (message.senderId === storeCopy.user.id) {
+      newConvo.latestMessageRead = true;
+    } else {
+      newConvo.latestMessageRead = message.read;
+      newConvo.count = 1;
+    }
+    newConvo.latestMessageText = message.text;
+    return [...state, newConvo];
+  }
+
   return state.map((convo) => {
     if (convo.otherUser.id === recipientId) {
       const newConvo = { ...convo };

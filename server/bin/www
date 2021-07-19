@@ -33,7 +33,7 @@ const io = require("socket.io")(server);
 const jwt = require("jsonwebtoken");
 const { User } = require("../db/models");
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth.auth;
 
   if (token) {
@@ -44,8 +44,8 @@ io.use((socket, next) => {
       }
       User.findOne({
         where: { id: decoded.id },
-      }).then(() => {
-        console.log("online");
+      }).then((session) => {
+        socket.userID = session.id;
         return next();
       });
     });
@@ -53,18 +53,19 @@ io.use((socket, next) => {
     socket.disconnect();
     return next();
   }
-}).on("connection", (socket) => {
-  // Handles all removing from online!
-  socket.on("disconnect", () => {
-    const userId = socket.handshake.auth.user;
-    const socketId = socket.id.toString();
+}).on("connection", async (socket) => {
+  // Join "userID" room
+  socket.join(socket.userID);
 
-    if (onlineUsers[userId] && onlineUsers[userId][socketId]) {
-      delete onlineUsers[userId][socketId];
-      if (
-        onlineUsers[userId] &&
-        Object.keys(onlineUsers[userId]).length === 0
-      ) {
+  socket.on("disconnect", async () => {
+    const userId = socket.userID;
+
+    if (onlineUsers[userId]) {
+      // wait till all sockets are depleted before removing someone from online
+      const matchingSockets = await io.in(userId).allSockets();
+      const isDisconnected = matchingSockets.size === 0;
+      if (isDisconnected) {
+        delete onlineUsers[userId];
         socket.broadcast.emit("remove-offline-user", userId);
       }
     }
@@ -72,43 +73,28 @@ io.use((socket, next) => {
   });
 
   socket.on("go-online", (id) => {
-    if (id) {
-      const onlineId = id.toString();
-      const socketId = socket.id.toString();
-      if (!onlineUsers[onlineId]) {
-        onlineUsers[onlineId] = {};
-        onlineUsers[onlineId] = { [socketId]: true };
-      } else {
-        onlineUsers[onlineId] = { ...onlineUsers[onlineId], [socketId]: true };
-      }
+    const onlineId = socket.userID;
 
-      // send the user who just went online to everyone else who is already online
-      socket.broadcast.emit("add-online-user", id);
-    }
+    onlineUsers[onlineId] = true;
+    // send the user who just went online to everyone else who is already online
+    socket.broadcast.emit("add-online-user", id);
   });
 
   // send online status of all connected users in server to new client on page reload
   socket.on("add-users-to-new", (data) => {
     if (data.idToAdd) {
-      const onlineId = data.idToAdd.toString();
-      const socketId = socket.id.toString();
+      const onlineId = data.idToAdd;
       if (!onlineUsers[onlineId]) {
-        onlineUsers[onlineId] = {};
-        onlineUsers[onlineId] = { [socketId]: true };
-
-        const array = Object.keys(onlineUsers[data.idToRecieve]);
-
+        onlineUsers[onlineId] = true;
         // Send to all socket id's of that user.
-        array.map((idToRecieve) => {
-          io.to(idToRecieve).emit("add-users-to-new");
-        });
+        io.to(data.idToRecieve).emit("add-users-to-new");
       }
     }
   });
 
   socket.on("new-message", (data) => {
-    const userId = socket.handshake.auth.user;
-    const onlineId = data.recipientId.toString();
+    //const userId = socket.userID;
+    const onlineId = data.recipientId;
 
     const dataToSend = {
       message: data.message,
@@ -116,33 +102,19 @@ io.use((socket, next) => {
       recipientId: data.recipientId,
       conversationId: data.conversationId,
     };
-    const array = Object.keys(onlineUsers[onlineId]);
 
     // send a private message to the socket with the given id
-    array.map((item) => {
-      io.to(item).emit("new-message", dataToSend);
-    });
-    if (onlineUsers[userId]) {
-      const arraySender = Object.keys(onlineUsers[userId]);
-      // Send to all socket id's of sender except for original sender socket id (so that sender's messages permeate throughout all of their logged in instances)
-      arraySender.map((item) => {
-        if (item !== socket.id) {
-          io.to(item).emit("new-message", dataToSend);
-        }
-      });
-    }
+
+    io.to(onlineId).emit("new-message", dataToSend);
+    socket.to(socket.userID).emit("new-made-convo", dataToSend);
   });
 
   socket.on("read-message", (data) => {
     socket.broadcast.emit("read-message", data);
 
-    if (onlineUsers[data.currentUser]) {
-      const arraySender = Object.keys(onlineUsers[data.currentUser]);
-
+    if (onlineUsers[socket.userID]) {
       // All user's logged in accounts conversation will be updated when one instance reads the message.
-      arraySender.map((item) => {
-        io.to(item).emit("read-message-concurrently", data);
-      });
+      socket.to(socket.userID).emit("read-message-concurrently", data);
     }
   });
 

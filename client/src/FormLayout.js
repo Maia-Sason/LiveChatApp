@@ -50,7 +50,7 @@ const FormLayout = ({
           <Grid
             container
             direction="row"
-            JustifyContent="space-around"
+            justifyContent="space-around"
             className={classes.rootform}
           >
             <Grid container item xs={12} justifyContent="flex-end">
