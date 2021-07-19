@@ -171,3 +171,12 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     console.error(error);
   }
 };
+
+export const usersById = (id) => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/api/users/user-id/${id}`);
+    dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.log(error);
+  }
+};

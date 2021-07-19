@@ -57,16 +57,13 @@ io.use(async (socket, next) => {
   // Join "userID" room
   socket.join(socket.userID);
 
-  const matchingSockets = await io.in(socket.userID).allSockets();
-  console.log(matchingSockets.size);
-
   socket.on("disconnect", async () => {
     const userId = socket.userID;
 
     if (onlineUsers[userId]) {
+      // wait till all sockets are depleted before removing someone from online
       const matchingSockets = await io.in(userId).allSockets();
       const isDisconnected = matchingSockets.size === 0;
-      console.log(matchingSockets.size);
       if (isDisconnected) {
         delete onlineUsers[userId];
         socket.broadcast.emit("remove-offline-user", userId);
@@ -96,7 +93,6 @@ io.use(async (socket, next) => {
   });
 
   socket.on("new-message", (data) => {
-    console.log("sending message");
     //const userId = socket.userID;
     const onlineId = data.recipientId;
 
@@ -110,7 +106,7 @@ io.use(async (socket, next) => {
     // send a private message to the socket with the given id
 
     io.to(onlineId).emit("new-message", dataToSend);
-    io.to(socket.userID).emit("new-made-convo", dataToSend);
+    socket.to(socket.userID).emit("new-made-convo", dataToSend);
   });
 
   socket.on("read-message", (data) => {
@@ -118,7 +114,7 @@ io.use(async (socket, next) => {
 
     if (onlineUsers[socket.userID]) {
       // All user's logged in accounts conversation will be updated when one instance reads the message.
-      // io.to(socket.userID).emit("read-message-concurrently", data);
+      socket.to(socket.userID).emit("read-message-concurrently", data);
     }
   });
 

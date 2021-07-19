@@ -36,6 +36,29 @@ router.get("/:username", async (req, res, next) => {
   }
 });
 
-router.get("/user-online", async (req, res, next) => {});
+router.get("/user-id/:id", async (req, res, next) => {
+  //  for updating user conversation when recieving new sent info from another instance of account
+  try {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+    const { id } = req.params;
+
+    let user = await User.findOne({
+      where: { id: id },
+    });
+
+    // add online status to user if online
+    const userJSON = user.toJSON();
+    if (onlineUsers[userJSON.id]) {
+      userJSON.online = true;
+    }
+    user = userJSON;
+
+    res.json([user]);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
