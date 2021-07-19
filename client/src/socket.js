@@ -7,6 +7,7 @@ import {
   updateReadConversation,
   updateUserTypingStatus,
 } from "./store/conversations";
+import { addConvoId } from "./store/conversationList";
 
 let socket = io(window.location.origin, {
   autoConnect: false,
@@ -49,8 +50,16 @@ socket.on("remove-offline-user", (id) => {
 
 socket.on("new-message", (data) => {
   console.log("Recieved message");
-
+  const storeCopy = store.getState();
+  if (!storeCopy.conversationList.includes(data.message.conversationId)) {
+    store.dispatch(addConvoId(data.message.conversationId));
+  }
   store.dispatch(setNewMessage(data.message, data.sender));
+});
+
+socket.on("new-made-convo", (data) => {
+  store.dispatch(postMessage(data));
+  console.log("setting message?");
 });
 
 socket.on("read-message", (data) => {

@@ -10,6 +10,21 @@ export const addMessageToStore = (state, payload) => {
     };
 
     newConvo.latestMessageText = message.text;
+    let exist = false;
+    state.map((convo) => {
+      if (sender.id === convo.otherUser.id) {
+        exist = true;
+      }
+    });
+    if (exist) {
+      return state.map((convo) => {
+        if (sender.id === convo.otherUser.id) {
+          return newConvo;
+        } else {
+          return convo;
+        }
+      });
+    }
 
     return [...state, newConvo];
   }

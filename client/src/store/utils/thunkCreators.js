@@ -144,14 +144,16 @@ export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
 
+    const storeCopy = store.getState();
     if (!body.conversationId) {
-      dispatch(addConvoId(data.message.conversationId));
+      if (!storeCopy.conversationList.includes(data.message.conversationId)) {
+        dispatch(addConvoId(data.message.conversationId));
+      }
       dispatch(addConversation(body.recipientId, data.message));
     } else {
       dispatch(setNewMessage(data.message));
       dispatch(readConversation({ id: body.conversationId }));
     }
-
 
     body.count = 0;
 
